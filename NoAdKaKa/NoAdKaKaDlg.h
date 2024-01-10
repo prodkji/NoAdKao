@@ -44,4 +44,6 @@ public:
 	afx_msg void OnBnClickedOk();
 	void DoProcess(void);
 	int GitUnderstand_01();
+	int Work1();
+	int work2();
 };
