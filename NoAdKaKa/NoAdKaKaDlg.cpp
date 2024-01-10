@@ -206,3 +206,10 @@ int CNoAdKaKaDlg::GitUnderstand_01()
 
 	return 0;
 }
+
+
+int CNoAdKaKaDlg::work2()
+{
+	int work2 = 101;
+	return 0;
+}
