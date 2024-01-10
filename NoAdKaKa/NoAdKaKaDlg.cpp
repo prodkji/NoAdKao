@@ -211,5 +211,8 @@ int CNoAdKaKaDlg::GitUnderstand_01()
 int CNoAdKaKaDlg::Work1()
 {
 	int work1 = 99;
+
+	int work1add = 100;
+
 	return 0;
 }
