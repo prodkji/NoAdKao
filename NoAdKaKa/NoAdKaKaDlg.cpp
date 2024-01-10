@@ -204,6 +204,8 @@ int CNoAdKaKaDlg::GitUnderstand_01()
 	// 원복후 함수 이름 다른것으로 재작업
 	int power = 0;
 
+	int crashtest = 102;
+
 	return 0;
 }
 
