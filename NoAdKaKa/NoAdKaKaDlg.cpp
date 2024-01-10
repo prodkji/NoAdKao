@@ -204,7 +204,14 @@ int CNoAdKaKaDlg::GitUnderstand_01()
 	// 원복후 함수 이름 다른것으로 재작업
 	int power = 0;
 
+	int crashtest = 102;
 	int bug = -1;
+	return 0;
+}
 
+
+int CNoAdKaKaDlg::work2()
+{
+	int work2 = 101;
 	return 0;
 }
