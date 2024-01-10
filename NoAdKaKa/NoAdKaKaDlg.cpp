@@ -215,3 +215,13 @@ int CNoAdKaKaDlg::work2()
 	int work2 = 101;
 	return 0;
 }
+
+
+int CNoAdKaKaDlg::Work1()
+{
+	int work1 = 99;
+
+	int work1add = 100;
+
+	return 0;
+}
