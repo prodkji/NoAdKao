@@ -38,7 +38,6 @@ public:
 	CEvent m_evtStop;
 
 	static UINT EventProcess(LPVOID pParam);
-	HWND FindAdWindow(HWND KakaoMain);
 
 	CWinThread *pCheckWinThread;
 	afx_msg void OnBnClickedOk();

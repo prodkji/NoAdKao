@@ -52,7 +52,7 @@ UINT CNoAdKaKaDlg::EventProcess(LPVOID pParam)
 		if( ::WaitForSingleObject(pDlg->m_evtStop, 0) == WAIT_OBJECT_0 ) break;
 
 		pDlg->DoProcess();
-		Sleep(3);
+		Sleep(5);
 		pDlg->ShowWindow(SW_HIDE);
 	}
 
@@ -111,7 +111,7 @@ BOOL CNoAdKaKaDlg::OnInitDialog()
 
 
 	/// 1차 커밋후 //2차는 분기 테스트 //
-	AfxMessageBox("Do Branch Process");
+	//AfxMessageBox("Do Branch Process");
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -152,11 +152,6 @@ HCURSOR CNoAdKaKaDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-HWND CNoAdKaKaDlg::FindAdWindow(HWND KakaoMain)
-{
-	//return ::FindWindowExA(KakaoMain, NULL, _T("EVA_Window"), NULL);
-	return ::FindWindowExA(KakaoMain, NULL, _T("BannerAdWnd"), NULL);
-}
 
 void CNoAdKaKaDlg::OnBnClickedButton1()
 {
@@ -174,26 +169,30 @@ void CNoAdKaKaDlg::OnBnClickedOk()
 
 void CNoAdKaKaDlg::DoProcess(void)
 {
-	HWND KakaoMain, KakaoAD, KakaoWnd;
-	RECT Rect;
+	HWND KakaoMain, KakaoAD, KakaoWnd, KakaoChatWnd;
+	RECT RectMain, RectChild;
 
-	KakaoMain = ::FindWindowA(_T("EVA_Window_Dblclk"), _T("카카오톡"));
-
-	if (KakaoMain == NULL)
-	{
-		KakaoMain = ::FindWindowA(_T("EVA_Window_Dblclk"), _T("KakaoTalk"));
-	}
-
-	KakaoAD = FindAdWindow(KakaoMain);
+	KakaoAD = ::FindWindowA(_T("EVA_Window_Dblclk"), _T(""));
 
 	if (KakaoAD != NULL)
 	{
 		::ShowWindow(KakaoAD, SW_HIDE);
-		//		KakaoWnd = ::FindWindowExA(KakaoMain, NULL, _T("EVA_Window"), NULL);
-		//		KakaoWnd = ::FindWindowA(_T("EVA_Window_Dblclk"), _T("KakaoTalk"));
-		KakaoWnd = ::FindWindowExA(KakaoMain, NULL, _T("EVA_ChildWindow"), NULL);
-		::GetWindowRect(KakaoMain, &Rect);
-		::SetWindowPos(KakaoWnd, HWND_BOTTOM, 0, 0, (Rect.right - Rect.left), (Rect.bottom - Rect.top - 32), SWP_NOMOVE);
+	}
+
+	KakaoMain = ::FindWindowA(_T("EVA_Window_Dblclk"), _T("카카오톡"));
+	if (KakaoMain != NULL)
+	{
+		KakaoWnd = ::FindWindowExA(KakaoMain, NULL, _T("EVA_ChildWindow"), _T(""));
+
+		KakaoChatWnd = ::FindWindowExA(KakaoMain, NULL, _T("EVA_ChildWindow"), NULL);
+
+		if (KakaoWnd != NULL)
+		{
+			::ShowWindow(KakaoWnd, SW_HIDE);
+			::GetWindowRect(KakaoMain, &RectMain);
+			::GetWindowRect(KakaoChatWnd, &RectChild);
+			::SetWindowPos(KakaoChatWnd, HWND_BOTTOM, 0, 0, (RectMain.right - RectMain.left), (RectMain.bottom - RectMain.top - 32), SWP_NOMOVE);
+		}
 	}
 }
 
