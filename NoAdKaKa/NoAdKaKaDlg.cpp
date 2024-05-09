@@ -103,6 +103,7 @@ BOOL CNoAdKaKaDlg::OnInitDialog()
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD,&nid); 
 //	AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
 
+	m_bOneTime = true;
 
 	pCheckWinThread = NULL;
 	m_evtStop.ResetEvent();
@@ -176,9 +177,11 @@ void CNoAdKaKaDlg::DoProcess(void)
 
 	if (KakaoAD != NULL)
 	{
-		::ShowWindow(KakaoAD, SW_HIDE);
+		RECT RectAD;
+		::GetWindowRect(KakaoAD, &RectAD);
+		if((RectAD.bottom - RectAD.top)==100) ::ShowWindow(KakaoAD, SW_HIDE);
 	}
-
+	
 	KakaoMain = ::FindWindowA(_T("EVA_Window_Dblclk"), _T("Ä«Ä«¿ÀÅå"));
 	if (KakaoMain != NULL)
 	{
@@ -191,7 +194,7 @@ void CNoAdKaKaDlg::DoProcess(void)
 			::ShowWindow(KakaoWnd, SW_HIDE);
 			::GetWindowRect(KakaoMain, &RectMain);
 			::GetWindowRect(KakaoChatWnd, &RectChild);
-			::SetWindowPos(KakaoChatWnd, HWND_BOTTOM, 0, 0, (RectMain.right - RectMain.left), (RectMain.bottom - RectMain.top - 32), SWP_NOMOVE);
+			::SetWindowPos(KakaoChatWnd, HWND_TOP, 0, 0, (RectMain.right - RectMain.left), (RectMain.bottom - RectMain.top - 32), SWP_NOMOVE);
 		}
 	}
 }
