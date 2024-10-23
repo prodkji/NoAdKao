@@ -16,8 +16,33 @@
 
 // CNoAdKaKaDlg dialog
 
+LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	TRACE("Mouse activity (%d).\n", nCode);
+	EnterCriticalSection(&theApp.m_Sectionsafe);
+	theApp.LastTime = CTime::GetCurrentTime();
+	LeaveCriticalSection(&theApp.m_Sectionsafe);
 
+	/*if (nCode == WM_MOUSEMOVE)
+	{
+		MSLLHOOKSTRUCT* pMouse = (MSLLHOOKSTRUCT*)lParam;
+		TRACE("Mouse activity.\n");
+		
+	}
+	*/
+	return 0;// CallNextHookEx(theMainDlg.hMouseHook, nCode, wParam, lParam);
+}
 
+LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
+	if (nCode == HC_ACTION) {
+		KBDLLHOOKSTRUCT* pKeyboard = (KBDLLHOOKSTRUCT*)lParam;
+		TRACE("Keyboard activity.\n");
+		EnterCriticalSection(&theApp.m_Sectionsafe);
+		theApp.LastTime = CTime::GetCurrentTime();
+		LeaveCriticalSection(&theApp.m_Sectionsafe);
+	}
+	return 0;// CallNextHookEx(hKeyboardHook, nCode, wParam, lParam);
+}
 
 CNoAdKaKaDlg::CNoAdKaKaDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CNoAdKaKaDlg::IDD, pParent)
@@ -46,7 +71,6 @@ UINT CNoAdKaKaDlg::EventProcess(LPVOID pParam)
 {
 	CNoAdKaKaDlg *pDlg = (CNoAdKaKaDlg*)pParam;
 
-
 	while(1)
 	{
 		if( ::WaitForSingleObject(pDlg->m_evtStop, 0) == WAIT_OBJECT_0 ) break;
@@ -54,6 +78,11 @@ UINT CNoAdKaKaDlg::EventProcess(LPVOID pParam)
 		pDlg->DoProcess();
 		Sleep(5);
 		pDlg->ShowWindow(SW_HIDE);
+
+		if (pDlg->Idle_OverTime())
+		{
+			pDlg->MakeUserBusyEvent();
+		}
 	}
 
 	pDlg->m_evtThreadDone.SetEvent();
@@ -100,11 +129,28 @@ BOOL CNoAdKaKaDlg::OnInitDialog()
 	lstrcpy(nid.szTip, "NoAdKaKa");
 	nid.uCallbackMessage = WM_TRAYICON_MSG;
 
-	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD,&nid); 
+	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD,&nid);
+
+
+	InitializeCriticalSectionEx(&theApp.m_Sectionsafe, 0, 0);
+	theApp.LastTime = CTime::GetCurrentTime();
 //	AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
 
 //	m_bOneTime = true;
 
+	hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, NULL, 0);
+	if (!hMouseHook) {
+		return FALSE;
+	}
+
+	hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHookProc, NULL, 0);
+	if (!hKeyboardHook)
+	{
+		return FALSE;
+	}
+
+
+	m_bOdd = FALSE;
 	pCheckWinThread = NULL;
 	m_evtStop.ResetEvent();
 	m_evtThreadDone.ResetEvent();
@@ -184,7 +230,7 @@ void CNoAdKaKaDlg::DoProcess(void)
 		else ::ShowWindow(KakaoAD, SW_SHOW);
 
 		int a = RectAD.bottom - RectAD.top;
-		TRACE1("%d \n", a);
+		//TRACE1("%d \n", a);
 	}
 	
 	KakaoMain = ::FindWindowA(_T("EVA_Window_Dblclk"), _T("Ä«Ä«¿ÀÅå"));
@@ -202,8 +248,6 @@ void CNoAdKaKaDlg::DoProcess(void)
 			::SetWindowPos(KakaoChatWnd, HWND_TOP, 0, 0, (RectMain.right - RectMain.left), (RectMain.bottom - RectMain.top - 32), SWP_NOMOVE);
 		}
 	}
-
-	
 }
 
 
@@ -233,4 +277,50 @@ int CNoAdKaKaDlg::Work1()
 	int work1add = 100;
 
 	return 0;
+}
+
+
+int CNoAdKaKaDlg::MakeUserBusyEvent()
+{
+	TRACE("MakeUserBusyEvent.\n");
+
+
+//	keybd_event(VK_LWIN, 0, 0, 0); // Window Key
+//	keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0);
+
+	POINT p;
+	GetCursorPos(&p);
+//	TRACE("Move : %d, %d .\n", p.x, p.y);
+
+	DWORD dXPos;
+	DWORD dYPos;
+	if (m_bOdd) {
+		dXPos = 900;
+		dYPos = 600;
+		m_bOdd = FALSE;
+	}
+	else {
+		dXPos = 800;
+		dYPos = 500;
+		m_bOdd = TRUE;
+	}
+	mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, dXPos, dYPos, 0, GetMessageExtraInfo());
+
+	return 0;
+}
+
+
+BOOL CNoAdKaKaDlg::Idle_OverTime()
+{
+	CTime CurTime = CTime::GetCurrentTime();
+	CTimeSpan CheckTime = CurTime - theApp.LastTime;
+	
+	if(CheckTime.GetMinutes()>=1)
+//	if (CheckTime.GetSeconds() >= 5)
+	{
+		TRACE("Idle_OverTime.\n");
+		return TRUE;
+	}
+	else
+		return FALSE;
 }

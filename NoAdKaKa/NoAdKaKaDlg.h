@@ -6,6 +6,7 @@
 
 #define  WM_TRAYICON_MSG WM_USER + 1
 
+
 // CNoAdKaKaDlg dialog
 class CNoAdKaKaDlg : public CDialogEx
 {
@@ -23,6 +24,8 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
+	HHOOK hKeyboardHook;
+	HHOOK hMouseHook;
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
@@ -36,6 +39,7 @@ public:
 
 	CEvent m_evtThreadDone;
 	CEvent m_evtStop;
+	BOOL	m_bOdd;
 
 	static UINT EventProcess(LPVOID pParam);
 
@@ -45,4 +49,7 @@ public:
 	int GitUnderstand_01();
 	int Work1();
 	int work2();
+	int MakeUserBusyEvent();
+	BOOL Idle_OverTime();
 };
+

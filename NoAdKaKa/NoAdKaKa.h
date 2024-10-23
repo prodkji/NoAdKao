@@ -26,6 +26,10 @@ public:
 
 // Implementation
 
+	CRITICAL_SECTION m_Sectionsafe;
+	CTime LastTime;
+
+
 	DECLARE_MESSAGE_MAP()
 };
 
